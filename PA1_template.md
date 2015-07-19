@@ -1,21 +1,18 @@
----
-title: "Reproducible Research: Peer Assessment 1"
-output: 
-  html_document:
-    keep_md: true
----
+# Reproducible Research: Peer Assessment 1
 
 
 ## Loading and preprocessing the data
 
-```{r}
+
+```r
 unzip("activity.zip", "activity.csv")
 data <- read.csv("activity.csv")
 ```
 
 ## What is mean total number of steps taken per day?
 
-```{r}
+
+```r
 library(plyr)
 processed_data <- ddply(.data = data, "date", summarise, steps_total = sum(steps))
 mean_steps <- round(mean(processed_data$steps_total, na.rm = TRUE),2)
@@ -23,23 +20,32 @@ median_steps <- median(processed_data$steps_total, na.rm = TRUE)
 hist(processed_data$steps_total, breaks=30, main = "Total number of steps taken each day", xlab="Total steps taken per day")
 ```
 
-Mean of the total number of steps taken per day: `r mean_steps`
+![](PA1_template_files/figure-html/unnamed-chunk-2-1.png) 
 
-Median of the total number of steps taken per day: `r median_steps`
+Mean of the total number of steps taken per day: 1.076619\times 10^{4}
+
+Median of the total number of steps taken per day: 10765
 
 ## What is the average daily activity pattern?
 
-```{r}
+
+```r
 average_steps_interval<- ddply(.data = data, "interval", summarise, steps_avg = mean(steps, na.rm=TRUE))
 plot(average_steps_interval$interval, average_steps_interval$steps_avg, type = "l")
+```
+
+![](PA1_template_files/figure-html/unnamed-chunk-3-1.png) 
+
+```r
 interval_with_maximum_number_steps <-average_steps_interval[average_steps_interval$steps_avg == max(average_steps_interval$steps_avg),1]
 ```
 
-Interval with the maximum number of steps taken per day: `r interval_with_maximum_number_steps`
+Interval with the maximum number of steps taken per day: 835
 
 ## Imputing missing values
 
-```{r}
+
+```r
 data2 <- data
 #Replace NA with the average of the interval
 for(i in 1:nrow(data2)){
@@ -54,13 +60,16 @@ median_steps_replaced_NA <- median(processed_data2$steps_total, na.rm = TRUE)
 hist(processed_data2$steps_total, breaks=30)
 ```
 
-Mean of the total number of steps taken per day (replaced NA data): `r mean_steps_replaced_NA`
+![](PA1_template_files/figure-html/unnamed-chunk-4-1.png) 
 
-Median of the total number of steps taken per day (replaced NA data): `r median_steps_replaced_NA`
+Mean of the total number of steps taken per day (replaced NA data): 1.0766189\times 10^{4}
+
+Median of the total number of steps taken per day (replaced NA data): 1.0766189\times 10^{4}
 
 ## Are there differences in activity patterns between weekdays and weekends?
 
-```{r}
+
+```r
 #Creates the Field
 data2[,"DayOfWeek"] <- ""
 data2[as.POSIXlt(as.Date(data2$date))$wday %in% 1:5 , "DayOfWeek"] <- "weekday"
@@ -69,8 +78,11 @@ processed_data3 <- ddply(.data = data2, c("interval","DayOfWeek"), summarise, st
 data_weekend <- processed_data3[processed_data3$DayOfWeek == "weekend",]
 data_weekday <- processed_data3[processed_data3$DayOfWeek == "weekday",]
 ```
-```{r fig.height = 10}
+
+```r
 par(mfrow=c(2,1))
 plot(data_weekend$interval, data_weekend$steps_avg, type = "l", main = "weekend")
 plot(data_weekday$interval, data_weekday$steps_avg, type = "l", main = "weekday")
 ```
+
+![](PA1_template_files/figure-html/unnamed-chunk-6-1.png) 
